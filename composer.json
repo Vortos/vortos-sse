@@ -1,0 +1,29 @@
+{
+    "name": "vortos/vortos-sse",
+    "description": "Vortos Server-Sent Events — a Redis-backed per-channel realtime signal and a bounded SSE stream helper for pushing change nudges to browsers",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Vortos\\Sse\\": ""
+        }
+    },
+    "require": {
+        "php": ">=8.2",
+        "symfony/http-foundation": "^7.0",
+        "vortos/vortos-foundation": "^1.0",
+        "vortos/vortos-logger": "^1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "suggest": {
+        "ext-redis": "Required by RedisRealtimeSignal for cross-process realtime signalling"
+    },
+    "extra": {
+        "vortos": {
+            "package": "Vortos\\Sse\\DependencyInjection\\SsePackage",
+            "order": 90
+        }
+    }
+}
