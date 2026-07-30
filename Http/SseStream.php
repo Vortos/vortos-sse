@@ -15,6 +15,20 @@ use Vortos\Sse\Contract\RealtimeSignalInterface;
  * The connection is deliberately short-lived so no worker/thread is held
  * indefinitely — the browser's EventSource reconnects automatically. The ping is
  * a "refetch now" nudge, not the data itself, keeping it multi-tab safe.
+ *
+ * ## Degraded path — do not reach for this first
+ *
+ * Bounding the lifetime limits how long a thread is held; it does not stop the thread from being held.
+ * A client that reconnects promptly is connected for very nearly all of the time, so each open browser
+ * tab occupies roughly one worker thread continuously. With a fixed worker pool that caps concurrent
+ * clients at the worker count, and the cap behaves as a cliff rather than a slope: past it, unrelated
+ * requests queue behind a thread sitting in `sleep()`.
+ *
+ * Prefer {@see \Vortos\Sse\Driver\MercureTransport}, where an idle connection is a goroutine in the hub
+ * instead of a thread in the application. This helper remains for local development, tests, and
+ * deployments with no hub configured, and is selected automatically by
+ * {@see \Vortos\Sse\Driver\InProcessStreamTransport}. Background:
+ * docs/plans/realtime-transport-mercure.md.
  */
 final class SseStream
 {

@@ -1,6 +1,6 @@
 {
     "name": "vortos/vortos-sse",
-    "description": "Vortos Server-Sent Events — a Redis-backed per-channel realtime signal and a bounded SSE stream helper for pushing change nudges to browsers",
+    "description": "Vortos Server-Sent Events — realtime change nudges to browsers over a Mercure hub, with a Redis-backed signal and bounded in-PHP stream as the hub-less fallback",
     "type": "library",
     "license": "MIT",
     "autoload": {
@@ -18,7 +18,8 @@
         "phpunit/phpunit": "^11.0"
     },
     "suggest": {
-        "ext-redis": "Required by RedisRealtimeSignal for cross-process realtime signalling"
+        "ext-redis": "Required by RedisRealtimeSignal for cross-process realtime signalling",
+        "ext-curl": "Required by CurlHubPublisher to publish to the Mercure hub; without it only the in-process stream fallback is available"
     },
     "extra": {
         "vortos": {
