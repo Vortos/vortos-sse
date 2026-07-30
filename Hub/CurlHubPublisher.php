@@ -49,6 +49,19 @@ final class CurlHubPublisher implements HubPublisherInterface
                 // the in-process fallback emits `event: ping` — so the client would need two listeners
                 // and would silently receive nothing on whichever transport it guessed wrong about.
                 'type' => self::EVENT_TYPE,
+                // MANDATORY, and the single most dangerous field to omit.
+                //
+                // Mercure enforces a subscriber's `mercure.subscribe` topic scope ONLY for updates
+                // marked private. An update published without this flag is *public*: the hub delivers
+                // it to any authenticated subscriber that asks for the topic, regardless of what their
+                // token authorises. Topic scoping in the token minter is then decorative — a subscriber
+                // holding a token for their own channel can read anyone else's by naming it.
+                //
+                // Verified against a live hub: without this, a token scoped to topic A received a
+                // publish on topic B. With it, the same subscriber receives nothing. Do not remove it,
+                // and do not make it configurable — there is no legitimate public update here, because
+                // every topic in this package is per-subject by construction.
+                'private' => 'on',
             ]),
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/x-www-form-urlencoded',
@@ -62,7 +75,9 @@ final class CurlHubPublisher implements HubPublisherInterface
         $response = curl_exec($ch);
         $errno = curl_errno($ch);
         $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        curl_close($ch);
+        // No curl_close(): it has been a no-op since PHP 8.0 and is deprecated in 8.5, where calling it
+        // emits a deprecation notice on every publish. The handle is released when $ch goes out of scope.
+        unset($ch);
 
         if ($errno !== 0) {
             throw new RuntimeException(sprintf(
